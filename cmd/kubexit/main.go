@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -24,8 +26,13 @@ import (
 func main() {
 	var err error
 
-	// remove log timestamp
-	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+	if silence, _ := strconv.ParseBool(os.Getenv("KUBEXIT_SILENCE")); silence {
+		log.SetFlags(0)
+		log.SetOutput(ioutil.Discard)
+	} else {
+		// remove log timestamp
+		log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+	}
 
 	args := os.Args[1:]
 	if len(args) == 0 {
